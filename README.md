@@ -4,45 +4,59 @@
 
 ### Archlinux
 
+```
 clang
 aur/mingw-w64-winpthreads-bin
 aur/mingw-w64-headers-bin
+```
 
 ### Ubuntu
 
-\# apt-get remove mingw*
+```
+# apt-get remove mingw*
 wget https://launchpad.net/ubuntu/+archive/primary/+files/mingw-w64-common_6.0.0-3_all.deb
 wget https://launchpad.net/ubuntu/+archive/primary/+files/mingw-w64-x86-64-dev_6.0.0-3_all.deb
 dpkg -i mingw-w64-common_6.0.0-3_all.deb
 dpkg -i mingw-w64-x86-64-dev_6.0.0-3_all.deb
-
+```
 ## build instructions
-
+```
 git clone https://github.com/plowsec/metasploit-payloads
 cd metasploit-payloads
 git submodule update --init --recursive
 cd c/meterpreter/source/ReflectiveDLLInjection
 git fetch origin pull/7/head:pr/7 && git checkout pr/7
+```
+
 
 ### build ReflectiveDLLInjection
+```
 cd ../../workspace/ReflectiveDLLInjection
 mkdir CMakeBuild && cd CMakeBuild
 cmake .. && make
+```
 
 ### build common
+```
 cd ../../common
 mkdir CMakeBuild && cd CMakeBuild
 cmake .. && make
+```
 
 ### build metsrv
+```
 cd ../../metsrv
 mkdir CMakeBuild && cd CMakeBuild
 cmake .. && make
+```
+
 
 ### build ext_server_stdapi
+```
 cd ../../ext_server_stdapi
 mkdir CMakeBuild && cd CMakeBuild
 cmake .. && make
+```
 
 
 
