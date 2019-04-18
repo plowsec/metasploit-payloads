@@ -119,7 +119,7 @@ include_directories( ${HEADER_DIR_3} )
 include_directories( ${HEADER_DIR_4} )
 
 # Add library to build.
-add_library(objlib OBJECT ${SRC_FILES})
+#add_library(objlib OBJECT ${SRC_FILES})
 
 
 set( CMAKE_C_COMPILE_OPTIONS_PIC "" ) 
