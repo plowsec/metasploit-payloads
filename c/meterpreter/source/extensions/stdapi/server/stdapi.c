@@ -177,6 +177,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 {
 	hMetSrv = remote->met_srv;
 
+	dprintf("[STDAPI] Hello from stdapi");
 	command_register_all(customCommands);
 
 	return ERROR_SUCCESS;

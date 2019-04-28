@@ -56,6 +56,8 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 		// if the library was loaded via its reflective loader we must use GetProcAddressR()
 		if (bLibLoadedReflectivly)
 		{
+			dprintf("[AVB] Loaded Reflectively...");
+
 			pExtension->init = (PSRVINIT)GetProcAddressR(pExtension->library, "InitServerExtension");
 			pExtension->deinit = (PSRVDEINIT)GetProcAddressR(pExtension->library, "DeinitServerExtension");
 			pExtension->getname = (PSRVGETNAME)GetProcAddressR(pExtension->library, "GetExtensionName");
@@ -64,11 +66,18 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 		}
 		else
 		{
-			pExtension->init = (PSRVINIT)GetProcAddress(pExtension->library, "InitServerExtension");
-			pExtension->deinit = (PSRVDEINIT)GetProcAddress(pExtension->library, "DeinitServerExtension");
-			pExtension->getname = (PSRVGETNAME)GetProcAddress(pExtension->library, "GetExtensionName");
-			pExtension->commandAdded = (PCMDADDED)GetProcAddress(pExtension->library, "CommandAdded");
-			pExtension->stagelessInit = (PSTAGELESSINIT)GetProcAddress(pExtension->library, "StagelessInit");
+                  dprintf("[AVB] Loaded normally...");
+
+                  pExtension->init = (PSRVINIT)GetProcAddress(
+                      pExtension->library, "InitServerExtension");
+                  pExtension->deinit = (PSRVDEINIT)GetProcAddress(
+                      pExtension->library, "DeinitServerExtension");
+                  pExtension->getname = (PSRVGETNAME)GetProcAddress(
+                      pExtension->library, "GetExtensionName");
+                  pExtension->commandAdded = (PCMDADDED)GetProcAddress(
+                      pExtension->library, "CommandAdded");
+                  pExtension->stagelessInit = (PSTAGELESSINIT)GetProcAddress(
+                      pExtension->library, "StagelessInit");
 		}
 
 		// patch in the metsrv.dll's HMODULE handle, used by the server extensions for delay loading
@@ -88,10 +97,21 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 
 			pExtension->end = pFirstCommand;
 			dwResult = pExtension->init(remote);
-			pExtension->start = extensionCommands;
+			Command *cmd;
+
+			dprintf("[remote_dispatch.load_extension] Listing current extension commands");
+
+                        for (cmd = pFirstCommand; cmd; cmd = cmd->next) {
+
+                          dprintf("[remote_dispatch.load_extension] Found: %s",
+                                  cmd->method);
+                        }
+
+                        pExtension->start = extensionCommands;
 
 			if (dwResult == ERROR_SUCCESS)
 			{
+				dprintf("[AVB] ERROR_SUCCESS");
 				// inform the new extension of the existing commands
 				if (pExtension->commandAdded)
 				{
@@ -110,6 +130,8 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 			}
 			else
 			{
+				dprintf("[AVB] Met error, not cool");
+
 				free(pExtension);
 			}
 		}
@@ -120,7 +142,7 @@ DWORD load_extension(HMODULE hLibrary, BOOL bLibLoadedReflectivly, Remote* remot
 			for (Command* command = pExtension->start; command != pExtension->end; command = command->next)
 			{
 				packet_add_tlv_string(response, TLV_TYPE_METHOD, command->method);
-
+				dprintf("[remote_dispatch.called_init] Found: %s",	command->method);
 				// inform existing extensions of the new commands
 				for (PNODE node = gExtensionList->start; node != NULL; node = node->next)
 				{
@@ -187,9 +209,14 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 			if (!(flags & LOAD_LIBRARY_FLAG_ON_DISK))
 			{
 				// try to load the library via its reflective loader...
+				dprintf("[AVB] Try to Load via LoadLibraryR : %s", libraryPath);
+
+				//__debugbreak();
 				library = LoadLibraryR(dataTlv.buffer, dataTlv.header.length);
 				if (library == NULL)
 				{
+					dprintf("[AVB] LoadLibraryR failed, calling libloader_load_library...");
+
 					// if that fails, presumably besause the library doesn't support
 					// reflective injection, we default to using libloader...
 					library = libloader_load_library(targetPath,

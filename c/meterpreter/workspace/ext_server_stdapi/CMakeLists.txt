@@ -67,6 +67,7 @@ add_definitions(
    -D__out_bcount_part_opt=SAL__out_bcount_part_opt
    -D__in_ecount=SAL__in_ecount
    -DHAVE_BOOLEAN
+   -DMTP_EXTENSION
 
 
 )
@@ -127,9 +128,11 @@ if(MSVC)
 endif(MSVC)
 if(NOT MSVC)
 set(CMAKE_LIBRARY_ARCHITECTURE x64 CACHE STRING "" FORCE)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target x86_64-w64-windows-gnu -I/usr/x86_64-w64-mingw32/include/ -L/usr/lib/gcc/x86_64-w64-mingw32/8.2.0/include/ -L/usr/x86_64-w64-mingw32/lib -Wfatal-errors -fmsc-version=${_MSC_VER} -fms-extensions -fms-compatibility -fdelayed-template-parsing ")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target x86_64-w64-windows-gnu -I/usr/x86_64-w64-mingw32/include/ -delayload -undefined dynamic_lookup  -Wvisibility -Wfatal-errors -fmsc-version=${_MSC_VER} -fms-extensions -fms-compatibility -fdelayed-template-parsing ")
+SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -delayload -undefined dynamic_lookup")
+set (CMAKE_SHARED_LINKER_FLAGS "-Wl,--as-needed -delayload -undefined dynamic_lookup")
 
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wvisibility")
    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
        set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
    endif()
@@ -192,15 +195,19 @@ include_directories( ${HEADER_DIR_17} )
 include_directories( ${HEADER_DIR_18} )
 
 set( CMAKE_C_COMPILE_OPTIONS_PIC "" ) 
-# Add library to build.
+
+add_link_options(-Wl,--unresolved-symbols=ignore-in-shared-libs )# Add library to build.
+
 add_library(${PROJECT_NAME} SHARED
    ${SRC_FILES}
 )
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 link_directories(/usr/x86_64-w64-mingw32/lib/)
 # Link with other dependencies.
 #target_link_libraries(${PROJECT_NAME} backcompat common metsrv ReflectiveDLLInjection )
-target_link_libraries(${PROJECT_NAME}  common ReflectiveDLLInjection metsrv psapi winmm iphlpapi shlwapi ws2_32 odbc32 odbccp32 mpr crypt32 wininet winhttp ole32 netapi32 jpeg strmiids)
+target_link_libraries(${PROJECT_NAME}  common ReflectiveDLLInjection psapi winmm iphlpapi shlwapi ws2_32 odbc32 odbccp32 mpr crypt32 wininet winhttp ole32 netapi32 jpeg )
 if(MSVC)
    target_link_libraries(${PROJECT_NAME} psapi.lib winmm.lib backcompat.lib iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib jpeg.lib )
 endif(MSVC)

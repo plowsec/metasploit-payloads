@@ -387,7 +387,7 @@ void install_hooks(SHELLCODE_CTX *ctx)
 	/* NtMapViewOfSection */
 
 	/* Patch */
-	patch_function(ctx, (DWORD)lNtMapViewOfSection, 
+	patch_function(ctx, (QWORD)lNtMapViewOfSection, 
 		ctx->s_NtMapViewOfSection, 
 		(unsigned char *)m_NtMapViewOfSection);
 

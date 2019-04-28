@@ -127,10 +127,10 @@ void command_register_all(Command commands[])
 #ifdef DEBUGTRACE
 	Command* command;
 
-	dprintf("[COMMAND LIST] Listing current extension commands");
-	for (command = extensionCommands; command; command = command->next)
+        dprintf("[base.command_register_all] [global address %p] Listing current extension commands", extensionCommands);
+        for (command = extensionCommands; command; command = command->next)
 	{
-		dprintf("[COMMAND LIST] Found: %s", command->method);
+		dprintf("[base.command_register_all] Found: %s", command->method);
 	}
 #endif
 }
@@ -144,27 +144,33 @@ DWORD command_register(Command *command)
 {
 	Command *newCommand;
 
-	dprintf("Registering a new command (%s)...", command->method);
+	dprintf("[BASE] Registering a new command (%s)...", command->method);
 	if (!(newCommand = (Command *)malloc(sizeof(Command))))
 	{
 		return ERROR_NOT_ENOUGH_MEMORY;
 	}
 
-	dprintf("Allocated memory...");
+	dprintf("[BASE] Allocated memory...");
 	memcpy(newCommand, command, sizeof(Command));
 
-	dprintf("Setting new command...");
+	dprintf("[BASE] Setting new command...");
 	if (extensionCommands)
 	{
 		extensionCommands->prev = newCommand;
 	}
 
-	dprintf("Fixing next/prev... %p", newCommand);
+	dprintf("[BASE] Fixing next/prev... %p", newCommand);
 	newCommand->next = extensionCommands;
 	newCommand->prev = NULL;
 	extensionCommands = newCommand;
+	Command *command2;
 
-	dprintf("Done...");
+	dprintf("[base.command_register] debug command after having registered a command");
+	for (command2 = extensionCommands; command2; command2 = command2->next)
+	{
+        dprintf("[base.command_register] Found: %s", command2->method);
+    }
+	dprintf("[BASE] Done...");
 	return ERROR_SUCCESS;
 }
 
@@ -189,6 +195,7 @@ void command_deregister_all(Command commands[])
  */
 DWORD command_deregister(Command *command)
 {
+	dprintf("[AVB] De register command %s", command->method);
 	Command *current, *prev;
 	DWORD res = ERROR_NOT_FOUND;
 
@@ -386,8 +393,11 @@ Command* command_locate_base(const char* method)
 		if (strcmp(baseCommands[index].method, method) == 0)
 		{
 			return &baseCommands[index];
+		} else {
+			dprintf("[AVB] Compare failed against %s", baseCommands[index].method);
 		}
-	}
+    }
+
 
 	dprintf("[COMMAND EXEC] Couldn't find base command %s", method);
 	return NULL;
@@ -405,12 +415,18 @@ Command* command_locate_extension(const char* method)
 	Command* command;
 
 	dprintf("[COMMAND EXEC] Attempting to locate extension command %s (%p)", method, extensionCommands);
+	
 	for (command = extensionCommands; command; command = command->next)
 	{
 		if (strcmp(command->method, method) == 0)
 		{
 			return command;
 		}
+		else
+		{
+			dprintf("[AVB] Compare failed against %s", command->method);
+		}
+		
 	}
 
 	dprintf("[COMMAND EXEC] Couldn't find extension command %s", method);
@@ -460,7 +476,16 @@ BOOL command_handle(Remote *remote, Packet *packet)
 
 		if (baseCommand == NULL && extensionCommand == NULL)
 		{
+			Command *command;
+
+			dprintf("[base.command_handle] [global address %p] Listing current extension commands debug", extensionCommands);
+			for (command = extensionCommands; command; command = command->next)
+			{
+				dprintf("[base.command_handle] Found: %s", command->method);
+			}
+			
 			dprintf("[DISPATCH] Command not found: %s", lpMethod);
+			//__debugbreak();
 			// We have no matching command for this packet, so it won't get handled. We
 			// need to send an empty response and clean up here before exiting out.
 			response = packet_create_response(packet);

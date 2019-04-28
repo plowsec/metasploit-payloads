@@ -106,6 +106,9 @@ VOID register_dispatch_routines()
 	gExtensionList = list_create();
 
 	command_register_all(customCommands);
+	dprintf("[remote_dispatch_common.register_dispatch_routines] Listing current extension commands");
+	Command *command;
+
 }
 
 /*
@@ -113,6 +116,8 @@ VOID register_dispatch_routines()
  */
 VOID deregister_dispatch_routines(Remote * remote)
 {
+	dprintf("[remote_dispatch_common.deregister_dispatch_routines] Deregister routines");
+
 	while (TRUE)
 	{
 		PEXTENSION extension = list_pop(gExtensionList);

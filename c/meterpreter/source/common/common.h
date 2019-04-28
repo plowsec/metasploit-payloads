@@ -10,7 +10,7 @@
 
 #define ERROR_UNSUPPORTED_COMPRESSION 22
 #define __try
-#define __except if
+#define __except(x) if(0)
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -65,6 +65,7 @@ typedef struct ___u128 {
 #define METERPRETER_TRANSPORT_PIPE   0x8
 
 VOID sleep(DWORD seconds);
+#define DEBUGTRACE 1
 
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)
