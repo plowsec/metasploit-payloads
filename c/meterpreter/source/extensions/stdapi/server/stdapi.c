@@ -168,6 +168,11 @@ Command customCommands[] =
 
 		COMMAND_TERMINATOR};
 
+//---test
+
+
+typedef void( *fn_command_register_all)(Command*);
+
 /*!
  * @brief Initialize the server extension.
  * @param remote Pointer to the remote instance.
@@ -178,7 +183,9 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 	hMetSrv = remote->met_srv;
 
 	dprintf("[STDAPI] Hello from stdapi");
-	command_register_all(customCommands);
+	fn_command_register_all cmd_register_all = (fn_command_register_all)GetProcAddressR(hMetSrv, "command_register_all");
+	//__debugbreak();
+	cmd_register_all(customCommands);
 
 	return ERROR_SUCCESS;
 }

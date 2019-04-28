@@ -129,19 +129,16 @@ set( CMAKE_C_COMPILE_OPTIONS_PIC "" )
 #add_library(${PROJECT_NAME} STATIC $<TARGET_OBJECTS:objlib>)
 
 
-add_library(${PROJECT_NAME}-dll SHARED
+add_library(${PROJECT_NAME} SHARED
    ${SRC_FILES}
 )
 
-add_library(${PROJECT_NAME} STATIC
-   ${SRC_FILES}
-)
+
    
 link_directories(/usr/x86_64-w64-mingw32/lib/)
 
 # Link with other dependencies.
 target_link_libraries(${PROJECT_NAME} common ReflectiveDLLInjection ws2_32 ole32 odbc32 odbccp32 crypt32 wininet winhttp )
-target_link_libraries(${PROJECT_NAME}-dll common ReflectiveDLLInjection ws2_32 ole32 odbc32 odbccp32 crypt32 wininet winhttp )
 
 if(MSVC)
    target_link_libraries(${PROJECT_NAME} ws2_32.lib odbc32.lib odbccp32.lib crypt32.lib wininet.lib winhttp.lib )

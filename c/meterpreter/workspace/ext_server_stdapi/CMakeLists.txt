@@ -68,6 +68,8 @@ add_definitions(
    -D__in_ecount=SAL__in_ecount
    -DHAVE_BOOLEAN
    -DMTP_EXTENSION
+   #-DUSE_DLL
+
 
 
 )
@@ -207,7 +209,7 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 link_directories(/usr/x86_64-w64-mingw32/lib/)
 # Link with other dependencies.
 #target_link_libraries(${PROJECT_NAME} backcompat common metsrv ReflectiveDLLInjection )
-target_link_libraries(${PROJECT_NAME}  common ReflectiveDLLInjection psapi winmm iphlpapi shlwapi ws2_32 odbc32 odbccp32 mpr crypt32 wininet winhttp ole32 netapi32 jpeg )
+target_link_libraries(${PROJECT_NAME} common ReflectiveDLLInjection psapi winmm iphlpapi shlwapi ws2_32 odbc32 odbccp32 mpr crypt32 wininet winhttp ole32 netapi32 jpeg )
 if(MSVC)
    target_link_libraries(${PROJECT_NAME} psapi.lib winmm.lib backcompat.lib iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib jpeg.lib )
 endif(MSVC)
