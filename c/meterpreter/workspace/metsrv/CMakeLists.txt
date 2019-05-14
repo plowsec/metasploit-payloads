@@ -134,7 +134,6 @@ add_library(${PROJECT_NAME} SHARED
 )
 
 
-   
 link_directories(/usr/x86_64-w64-mingw32/lib/)
 
 # Link with other dependencies.
